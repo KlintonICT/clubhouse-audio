@@ -15,6 +15,7 @@
     "@stream-io/video-react-sdk": "^1.2.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.0",
     "react-router-dom": "^6.24.0",
     "universal-cookie": "^7.1.4",
     "yup": "^1.4.0"
