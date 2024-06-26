@@ -1,6 +1,9 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import Cookies from 'universal-cookie';
 import * as yup from 'yup';
+
+import { PEOPLES_IMAGES } from '@/constants';
 
 interface FormValues {
   username: string;
@@ -8,6 +11,8 @@ interface FormValues {
 }
 
 export const SignIn = () => {
+  const cookies = new Cookies();
+
   const schema = yup.object().shape({
     username: yup
       .string()
@@ -21,12 +26,34 @@ export const SignIn = () => {
     formState: { errors },
   } = useForm<FormValues>({ resolver: yupResolver(schema) });
 
-  const onSubmit: SubmitHandler<FormValues> = (data, event) => {
-    event?.preventDefault();
-
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const { username, name } = data;
+    const response = await fetch('http://localhost:3001/auth/create-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        name,
+        image:
+          PEOPLES_IMAGES[Math.floor(Math.random() * PEOPLES_IMAGES.length)],
+      }),
+    });
 
-    console.log({ username, name });
+    if (!response.ok) {
+      alert('Some error occured while signing in');
+      return;
+    }
+
+    const responseData = await response.json();
+    console.log(responseData);
+
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 1);
+    cookies.set('token', responseData.token, { expires });
+    cookies.set('username', responseData.username, { expires });
+    cookies.set('name', responseData.name, { expires });
   };
 
   return (
