@@ -4,17 +4,28 @@
   "main": "index.js",
   "author": "KlintonICT",
   "license": "MIT",
+  "scripts": {
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+  },
   "dependencies": {
     "@stream-io/node-sdk": "^0.2.6",
     "cors": "^2.8.5",
+    "dotenv-safe": "^9.1.0",
     "express": "^4.19.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.5.0",
     "@types/cors": "^2.8.17",
+    "@types/dotenv-safe": "^8.1.6",
     "@types/express": "^4.17.21",
     "@types/node": "^20.14.9",
+    "eslint": "9.x",
+    "eslint-plugin-import": "^2.29.1",
+    "globals": "^15.6.0",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.2"
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.2",
+    "typescript-eslint": "^7.14.1"
   }
 }
