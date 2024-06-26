@@ -18,12 +18,16 @@ router.post('/create-user', async (req: Request, res: Response) => {
     name,
     image,
   };
-
-  const user = await client.upsertUsers({
+  await client.upsertUsers({
     users: {
       [newUser.id]: newUser,
     },
   });
+
+  const expiry = Math.floor(Date.now() / 1000) + 24 * 60 * 60; // 1 day
+  const token = client.createToken(username, expiry);
+
+  return res.status(200).json({ token, username, name });
 });
 
 export default router;
