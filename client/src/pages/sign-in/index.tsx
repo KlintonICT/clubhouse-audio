@@ -47,7 +47,7 @@ export const SignIn = () => {
     });
 
     if (!response.ok) {
-      alert('Some error occured while signing in');
+      alert('Some error occurred while signing in');
       return;
     }
 
@@ -59,7 +59,7 @@ export const SignIn = () => {
       name,
     };
     const myClient = new StreamVideoClient({
-      apiKey: import.meta.env.STREAM_API_KEY,
+      apiKey: import.meta.env.VITE_STREAM_API_KEY,
       user,
       token: responseData.token,
     });
