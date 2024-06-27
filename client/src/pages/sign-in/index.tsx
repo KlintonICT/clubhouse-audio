@@ -33,18 +33,21 @@ export const SignIn = () => {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const { username, name } = data;
-    const response = await fetch('http://localhost:3001/auth/create-user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username,
-        name,
-        image:
-          PEOPLES_IMAGES[Math.floor(Math.random() * PEOPLES_IMAGES.length)],
-      }),
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/create-user`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          name,
+          image:
+            PEOPLES_IMAGES[Math.floor(Math.random() * PEOPLES_IMAGES.length)],
+        }),
+      }
+    );
 
     if (!response.ok) {
       alert('Some error occurred while signing in');
