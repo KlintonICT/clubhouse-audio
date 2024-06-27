@@ -3,14 +3,14 @@
 import { StreamVideoClient } from '@stream-io/video-react-sdk';
 import { createContext, FC, ReactNode, useContext, useState } from 'react';
 
-interface IUser {
+interface User {
   username: string;
   name: string;
 }
 
 interface UserContextProps {
-  user: IUser | null;
-  setUser: (user: IUser | null) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   client?: StreamVideoClient;
   setClient: (client?: StreamVideoClient) => void;
 }
@@ -22,7 +22,7 @@ interface UserProviderProps {
 }
 
 export const UserProvider: FC<UserProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [client, setClient] = useState<StreamVideoClient>();
 
   return (
