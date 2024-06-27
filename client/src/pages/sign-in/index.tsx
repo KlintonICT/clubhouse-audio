@@ -1,9 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { StreamVideoClient, User } from '@stream-io/video-react-sdk';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import * as yup from 'yup';
 
 import { PEOPLES_IMAGES } from '@/constants';
+import { useUserContext } from '@/contexts/user';
 
 interface FormValues {
   username: string;
@@ -12,6 +15,8 @@ interface FormValues {
 
 export const SignIn = () => {
   const cookies = new Cookies();
+  const { setClient, setUser } = useUserContext();
+  const navigate = useNavigate();
 
   const schema = yup.object().shape({
     username: yup
@@ -49,11 +54,25 @@ export const SignIn = () => {
     const responseData = await response.json();
     console.log(responseData);
 
+    const user: User = {
+      id: username,
+      name,
+    };
+    const myClient = new StreamVideoClient({
+      apiKey: import.meta.env.STREAM_API_KEY,
+      user,
+      token: responseData.token,
+    });
+    setClient(myClient);
+    setUser({ username, name });
+
     const expires = new Date();
     expires.setDate(expires.getDate() + 1);
     cookies.set('token', responseData.token, { expires });
     cookies.set('username', responseData.username, { expires });
     cookies.set('name', responseData.name, { expires });
+
+    navigate('/');
   };
 
   return (
