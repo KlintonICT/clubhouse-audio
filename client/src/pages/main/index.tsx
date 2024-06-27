@@ -1,6 +1,6 @@
-import { StreamVideo } from '@stream-io/video-react-sdk';
+import { Call, StreamVideo } from '@stream-io/video-react-sdk';
 import CryptoJs from 'crypto-js';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import { useUserContext } from '@/contexts/user';
@@ -10,6 +10,19 @@ interface NewRoom {
   description: string;
 }
 
+interface Room {
+  id: string;
+  title: string;
+  description: string;
+  participantsLength: number;
+  createdBy: string;
+}
+
+type CustomCallData = {
+  description?: string;
+  title?: string;
+};
+
 export const MainPage = () => {
   const navigate = useNavigate();
   const { client, user, setCall, isLoadingClient } = useUserContext();
@@ -17,6 +30,14 @@ export const MainPage = () => {
     name: '',
     description: '',
   });
+  const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
+
+  useEffect(() => {
+    if (client) {
+      fetchListOfCalls();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client]);
 
   const getHashRoomName = (roomName: string): string => {
     const hash = CryptoJs.SHA256(roomName).toString(CryptoJs.enc.Base64);
@@ -43,6 +64,42 @@ export const MainPage = () => {
 
     setCall(call);
     navigate('/room');
+  };
+
+  const fetchListOfCalls = async () => {
+    const callsQueryResponse = await client?.queryCalls({
+      filter_conditions: { ongoing: true },
+      limit: 4,
+      watch: true,
+    });
+
+    if (!callsQueryResponse) {
+      alert('Error getting calls');
+    } else {
+      const getCallInfo = async (call: Call): Promise<Room> => {
+        const callInfo = await call.get();
+        const customData = callInfo.call.custom;
+        const { title, description } = (customData || {}) as CustomCallData;
+        const participantsLength = callInfo.members.length ?? 0;
+        const createdBy = callInfo.call.created_by.name ?? '';
+        const id = callInfo.call.id ?? '';
+
+        return {
+          id,
+          title: title ?? '',
+          description: description ?? '',
+          participantsLength,
+          createdBy,
+        };
+      };
+
+      const roomPromises = callsQueryResponse.calls.map((call) =>
+        getCallInfo(call)
+      );
+      const rooms = await Promise.all(roomPromises);
+
+      setAvailableRooms(rooms);
+    }
   };
 
   if (isLoadingClient) return <h1>...</h1>;
@@ -77,6 +134,25 @@ export const MainPage = () => {
             Create Room
           </button>
         </div>
+
+        {availableRooms.length ? (
+          <>
+            <h2>Available Rooms</h2>
+            <div className='grid'>
+              {availableRooms.map((room) => (
+                <div className='card' key={room.id}>
+                  <h4>{room.title}</h4>
+                  <p>{room.description}</p>
+                  <p>{room.participantsLength} participants</p>
+                  <p>Created By: {room.createdBy}</p>
+                  <div className='shine'></div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <h2>No available rooms at the moment.</h2>
+        )}
       </div>
     </StreamVideo>
   );
